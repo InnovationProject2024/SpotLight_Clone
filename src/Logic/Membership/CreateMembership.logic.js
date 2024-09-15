@@ -24,9 +24,7 @@ export default function CreateMembershipLogic(teamId) {
       typeof role === "undefined" || typeof role !== "string" ? [] : [role],
       `${process.env.REACT_APP_WEBSITE_URL}/accept-invite/${eventId}`,
       email,
-      userId,
-      "",
-      name
+      userId
     );
     
     setTeamMembers((prev) => [...prev, res]);
