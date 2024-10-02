@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { IoAdd } from "react-icons/io5";
 import { Link } from "react-router-dom";
-import NotFoundEvent from '../../assets/images/eventNotFound.svg'
+import NotFoundEvent from '../../assets/images/eventNotFound.svg';
 import GetEventLogic from "../../Logic/EventsLogic/getEvents";
+import EventCard from "../../components/EventCard";
 import Loading from "../../components/Loading";
 
 function Dashboard() {
@@ -10,6 +11,7 @@ function Dashboard() {
   const {
     loading,
     error,
+    events,
     eventCount,
     privateEvent,
     publicEvent,
@@ -25,6 +27,12 @@ function Dashboard() {
       clearInterval(timer);
     };
   }, [date]);
+
+  const [filteredEvents, setFilteredEvents] = useState(null);
+
+  useEffect(() => {
+      setFilteredEvents((prev) => events);
+  }, [events]);
 
   return (
     <div>
@@ -79,6 +87,22 @@ function Dashboard() {
               );
             })}
         </div>}
+        {loading ? (
+          <Loading />
+        ) : (
+          <div>
+            {error && <p>{error}</p>}
+            <div className="grid lg:grid-cols-2 gap-4">
+              {!loading && filteredEvents?.length > 0 ? (
+                filteredEvents?.map((event, index) => (
+                  <EventCard key={index} event={event} />
+                ))
+              ) : (
+                <p className="text-neutral-500">No events found</p>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

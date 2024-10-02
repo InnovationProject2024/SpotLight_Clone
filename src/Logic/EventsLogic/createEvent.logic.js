@@ -32,9 +32,9 @@ function CreateEventLogic() {
   const [maxParticipants, setMaxParticipants] = useState(null);
   const [category, setCategory] = useState("");
   const [medium, setMedium] = useState("offline");
-  const [meetLink, setMeetLink] = useState("");
-  const [meetId, setMeetId] = useState("");
-  const [meetPassword, setMeetPassword] = useState("");
+  // const [meetLink, setMeetLink] = useState("");
+  // const [meetId, setMeetId] = useState("");
+  // const [meetPassword, setMeetPassword] = useState("");
   const [privacy, setPrivacy] = useState("public");
   const [image, setImage] = useState(null);
   const [imageError, setImageError] = useState("");
@@ -73,7 +73,7 @@ function CreateEventLogic() {
         maxParticipants,
         category,
         medium,
-        meet,
+        // meet,
         privacy,
         image,
         imageId,
@@ -96,9 +96,9 @@ function CreateEventLogic() {
       setMaxParticipants((prev) => maxParticipants);
       setCategory((prev) => category);
       setMedium((prev) => medium);
-      setMeetLink((prev) => meet[0]);
-      setMeetId((prev) => meet[1]);
-      setMeetPassword((prev) => meet[2]);
+      // setMeetLink((prev) => meet[0]);
+      // setMeetId((prev) => meet[1]);
+      // setMeetPassword((prev) => meet[2]);
       setPrivacy((prev) => privacy);
       setImage((prev) => image);
       setImagePreview((prev) => image);
@@ -169,7 +169,7 @@ function CreateEventLogic() {
       updatedObj.medium = medium;
     }
     updatedObj.location = value.location;
-    updatedObj.meet = value.meet;
+    // updatedObj.meet = value.meet;
     return updatedObj;
   };
 
@@ -266,10 +266,10 @@ function CreateEventLogic() {
             medium === "online"
               ? []
               : [String(location), String(latitude), String(longitude)],
-          meet:
-            medium === "offline"
-              ? []
-              : [String(meetLink), String(meetId), String(meetPassword)],
+          // meet:
+          //   medium === "offline"
+          //     ? []
+          //     : [String(meetLink), String(meetId), String(meetPassword)],
           privacy,
           createdBy: token.userId,
           image: filePreviewUrl,
@@ -466,28 +466,28 @@ function CreateEventLogic() {
       show: medium === "offline",
       required: medium === "offline",
     },
-    {
-      label: "Meet Link",
-      value: meetLink,
-      placeholder: "Please provide a meet link for your event.",
-      cb: setMeetLink,
-      type: "url",
-      show: medium === "online",
-    },
-    {
-      label: "Meet ID",
-      value: meetId,
-      placeholder: "Please provide a meet ID for your event.",
-      cb: setMeetId,
-      show: medium === "online",
-    },
-    {
-      label: "Meet Password",
-      value: meetPassword,
-      placeholder: "Please provide a meet password for your event.",
-      cb: setMeetPassword,
-      show: medium === "online",
-    },
+    // {
+    //   label: "Meet Link",
+    //   value: meetLink,
+    //   placeholder: "Please provide a meet link for your event.",
+    //   cb: setMeetLink,
+    //   type: "url",
+    //   show: medium === "online",
+    // },
+    // {
+    //   label: "Meet ID",
+    //   value: meetId,
+    //   placeholder: "Please provide a meet ID for your event.",
+    //   cb: setMeetId,
+    //   show: medium === "online",
+    // },
+    // {
+    //   label: "Meet Password",
+    //   value: meetPassword,
+    //   placeholder: "Please provide a meet password for your event.",
+    //   cb: setMeetPassword,
+    //   show: medium === "online",
+    // },
     // {
     //   label: "Accepting Attendances",
     //   value: acceptingAttendance,

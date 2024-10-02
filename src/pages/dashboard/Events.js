@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import GetEventLogic from "../../Logic/EventsLogic/getEvents";
+import GetAllJoinedEvents from "../../Logic/EventsLogic/getAllJoinedEvents";
 import EventCard from "../../components/EventCard";
 import Loading from "../../components/Loading";
 
@@ -8,6 +8,7 @@ function Events() {
     loading,
     error,
     events,
+    ownedEvent,
     privateEvent,
     publicEvent,
     offlineEvent,
@@ -15,7 +16,7 @@ function Events() {
     filter,
     searchParams,
     setSearchParams,
-  } = GetEventLogic();
+  } = GetAllJoinedEvents();
 
   const [filteredEvents, setFilteredEvents] = useState(null);
 
@@ -24,6 +25,8 @@ function Events() {
     // const search = searchParams.get("search") ?? "";
     if (filter === "total") {
       setFilteredEvents((prev) => events);
+    } else if (filter === "owned") {
+      setFilteredEvents((prev) => ownedEvent);
     } else if (filter === "private") {
       setFilteredEvents((prev) => privateEvent);
     } else if (filter === "public") {
@@ -64,6 +67,7 @@ function Events() {
           className="w-max bg-transparent py-4 pl-4 outline-none border-l border-neutral-300"
         >
           <option value="total">Total</option>
+          <option value="owned">Owned</option>
           <option value="private">Private</option>
           <option value="public">Public</option>
           <option value="offline">Offline</option>

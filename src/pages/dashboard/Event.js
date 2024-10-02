@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Account } from 'appwrite';
 import GetEventLogic from "../../Logic/EventsLogic/getEvents";
 import { Link } from "react-router-dom";
 import {
@@ -16,6 +17,7 @@ import {
   IoPeopleOutline,
   IoPersonOutline,
   IoWalletOutline,
+  IoLink,
 } from "react-icons/io5";
 
 import { toast } from "react-hot-toast";
@@ -52,6 +54,9 @@ function compareLightness(color1, color2) {
 
 function Event() {
   const { loading, error, events, id } = GetEventLogic();
+  const [currentTime, setCurrentTime] = useState(new Date().getTime());
+  const [isUserRegistered, setIsUserRegistered] = useState(false);
+  const [isUserOwner, setIsUserOwner] = useState(false);
   
 
   const {
@@ -155,8 +160,69 @@ function Event() {
     }
     return "Invite";
   };
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date().getTime() + 19800000);
+    }, 1000);
 
+    return () => clearInterval(interval); 
+  }, []);
+
+  const checkIsUserOwner = async (eventId) => {
+    try {
+      const account = new Account(client);
+      const database = new Databases(client);
+      const user = await account.get(); 
+      const userId = user.$id;
   
+      const response = await database.getDocument(
+        process.env.REACT_APP_DATABASE_ID,
+        process.env.REACT_APP_EVENTS_COLLECTION_ID,
+        eventId
+      );
+
+      if (response.createdBy === userId) {
+        setIsUserOwner(true);
+      } else {
+        setIsUserOwner(false);
+      }
+    } catch (error) {
+      console.error("Error checking event ownership:", error.message);
+    }
+  };
+  
+  useEffect(() => {
+    if (events?.$id) {
+      checkIsUserOwner(events.$id);
+    }
+  }, [events?.$id]);
+
+  const isEventOngoing = currentTime >= new Date(events?.startDate).getTime() && currentTime <= new Date(events?.endDate).getTime();
+
+  useEffect(() => {
+    const checkUserRegistration = async () => {
+      try {
+        const teams = new Teams(client);
+        const account = new Account(client);
+        const user = await account.get();
+
+        const userId = user.$id;
+
+        const teamMembers = await teams.listMemberships(events?.teamId);
+        const isRegistered = teamMembers.memberships.some(
+          (member) => member.userId === userId
+        );
+        setIsUserRegistered(isRegistered);
+      } catch (error) {
+        toast.error("Error checking registration status");
+        console.error(error);
+      }
+    };
+
+    if (events?.teamId) {
+      checkUserRegistration();
+    }
+  }, [events?.teamId]);
 
   if (loading) return <Loading />;
 
@@ -181,7 +247,13 @@ function Event() {
           <div className="relative h-full  lg:col-span-2">
             <div className="absolute top-4 left-4 inline-flex gap-2 flex-wrap">
               <Link
-                to={`/dashboard/create?id=${events?.$id}`}
+                to={isUserOwner ? `/dashboard/create?id=${events?.$id}` : "#"}
+                onClick={(e) => {
+                  if (!isUserOwner) {
+                    e.preventDefault();
+                    toast.error("You do not have permission to Edit this event.");
+                  }
+                }}
                 className="shadow-md primary-btn group overflow-hidden transition-all" style={{
                   background: `rgb(${colors[4]?.join(',')})`
                 }}
@@ -192,7 +264,13 @@ function Event() {
                 </p>
               </Link>
               <button
-                onClick={deleteEventToast}
+                onClick={(e) => {
+                  if (isUserOwner) {
+                    deleteEventToast(e);
+                  } else {
+                    toast.error("You do not have permission to delete this event.");
+                  }
+                }}
                 className="shadow-md primary-btn group overflow-hidden transition-all" style={{
                   background: `rgb(${colors[4]?.join(',')})`
                 }}
@@ -203,7 +281,13 @@ function Event() {
                 </p>
               </button>
               <button
-                onClick={copyTeamId}
+                onClick={(e) => {
+                  if (isUserOwner) {
+                    copyTeamId(e);
+                  } else {
+                    toast.error("You do not have permission to copy the invite ID.");
+                  }
+                }}
                 className="shadow-md primary-btn group overflow-hidden transition-all" style={{
                   background: `rgb(${colors[4]?.join(',')})`
                 }}
@@ -214,7 +298,13 @@ function Event() {
                 </p>
               </button>
               <button
-                onClick={toggleShowUsers}
+                onClick={(e) => {
+                  if (isUserOwner) {
+                    toggleShowUsers(e);
+                  } else {
+                    toast.error("You do not have permission to invite users.");
+                  }
+                }}
                 className="shadow-md primary-btn group overflow-hidden transition-all" style={{
                   background: `rgb(${colors[4]?.join(',')})`
                 }}
@@ -273,7 +363,13 @@ function Event() {
                 {events?.price > 0 ? `Rs. ${events?.price}` : "Free"}
               </h2>
               <h2
-                onClick={toggleShowUsers}
+                onClick={(e) => {
+                  if (isUserOwner) {
+                    toggleShowUsers(e);
+                  } else {
+                    toast.error("You do not have permission to invite users.");
+                  }
+                }}
                 className="text-lg inline-flex items-center gap-2 cursor-pointer"
               >
                 <IoPersonOutline />{" "}
@@ -286,6 +382,21 @@ function Event() {
                 {events?.maxParticipants > 0
                   ? `Max Limit of ${events.maxParticipants} members`
                   : "No max participation limit"}
+              </h2>
+              <h2 className="text-lg inline-flex items-center gap-2 cursor-pointer"
+                onClick={() => {
+                  if (isEventOngoing && isUserRegistered) {
+                    window.location.href = events?.meetLink;
+                  } else {
+                    toast.error("You are not allowed to join the event");
+                  }
+                }}>
+                {events?.medium === "online" && isEventOngoing && isUserRegistered ? (
+                  <>
+                  <IoLink />{" "}
+                  <p>Join Meet</p>
+                  </>
+                ) : null}
               </h2>
             </div>
           </div>
