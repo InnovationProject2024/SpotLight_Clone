@@ -386,7 +386,7 @@ function Event() {
               <h2 className="text-lg inline-flex items-center gap-2 cursor-pointer"
                 onClick={() => {
                   if (isEventOngoing && isUserRegistered) {
-                    window.location.href = events?.meetLink;
+                    window.location.href = events?.meet;
                   } else {
                     toast.error("You are not allowed to join the event");
                   }
